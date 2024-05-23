@@ -29,24 +29,30 @@ public class Responder extends TelegramLongPollingBot {
 
         String response = "Sorry, I haven't understood your message. Please push any button from above";
 
-        String ChatId = String.valueOf(update.getMessage().getChatId());
+        String chatId ="";
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(ChatId); // without ChatId it will be an exception
         sendMessage.setText(response);
 
         if(update.hasCallbackQuery() && update.getCallbackQuery().getData() != null && !update.getCallbackQuery().getData().isEmpty()){
+
+            chatId = String.valueOf(update.getCallbackQuery().getMessage().getChatId());
+
             String callBackData = update.getCallbackQuery().getData();
-            if(callBackData.equals("Option 1")){
-                sendMessage.setText("Option 1");
+            if(callBackData.equalsIgnoreCase("/option1")){
+                sendMessage.setText("option1");
+            }
+            if(callBackData.equalsIgnoreCase("/option2")){
+                sendMessage.setText("option2");
             }
 
         }
 
         if(update.hasMessage() && update.getMessage().hasText()) { //we check first of all that there is a message, not an empty str and it's a text
 
+            chatId = String.valueOf(update.getMessage().getChatId());
             String userMessage = update.getMessage().getText().trim(); //trim remove any empty characters at the beginning & at the end of the string
 
-                sendMessage.setText("Moin I'm Evaog_bot =) Let's start! Please choose: ");
+                sendMessage.setText("Moin! I'm evaog_bot =) Please choose: ");
 
                 //Creating a keyboard
                 InlineKeyboardMarkup inlineKeyboardMarkup = getInlineKeyboardMarkup();
@@ -55,6 +61,11 @@ public class Responder extends TelegramLongPollingBot {
 
         }
 
+        if(chatId.isEmpty()){
+            throw new IllegalStateException("The chat id is not found");
+        }
+
+        sendMessage.setChatId(chatId);
 
         try {
             sendApiMethod(sendMessage); // we tell telegram to send this message
@@ -72,12 +83,12 @@ public class Responder extends TelegramLongPollingBot {
         // First option
         InlineKeyboardButton option1 = new InlineKeyboardButton();
         option1.setText("Option 1");
-        option1.setCallbackData("Option 1");
+        option1.setCallbackData("/option1");
 
         // Second option
         InlineKeyboardButton option2 = new InlineKeyboardButton();
         option2.setText("Option 2");
-        option2.setCallbackData("Option 2");
+        option2.setCallbackData("/option2");
 
         // Adding options to the keyboard
         buttonsRow.add(option1);
