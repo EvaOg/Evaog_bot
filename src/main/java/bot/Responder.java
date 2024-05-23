@@ -38,11 +38,17 @@ public class Responder extends TelegramLongPollingBot {
             chatId = String.valueOf(update.getCallbackQuery().getMessage().getChatId());
 
             String callBackData = update.getCallbackQuery().getData();
-            if(callBackData.equalsIgnoreCase("/option1")){
-                sendMessage.setText("option1");
+            if(callBackData.equalsIgnoreCase("/enteringTask")){
+                sendMessage.setText("Enter task & chose the time time");
+                String newTask = update.getMessage().getText().trim();
+                new AllTasks(newTask);
+                //the next input is the task
+                // save task by calling a Constructor AllTasks(task, time)
+
             }
-            if(callBackData.equalsIgnoreCase("/option2")){
-                sendMessage.setText("option2");
+            if(callBackData.equalsIgnoreCase("/allTasks")){
+                AllTasks allTasks = new AllTasks();
+                sendMessage.setText(allTasks.toString());
             }
 
         }
@@ -52,13 +58,12 @@ public class Responder extends TelegramLongPollingBot {
             chatId = String.valueOf(update.getMessage().getChatId());
             String userMessage = update.getMessage().getText().trim(); //trim remove any empty characters at the beginning & at the end of the string
 
-                sendMessage.setText("Moin! I'm evaog_bot =) Please choose: ");
+                sendMessage.setText("Moin!  I'm EvaBot \uD83D\uDE42  Please choose: ");
 
                 //Creating a keyboard
                 InlineKeyboardMarkup inlineKeyboardMarkup = getInlineKeyboardMarkup();
 
                 sendMessage.setReplyMarkup(inlineKeyboardMarkup);
-
         }
 
         if(chatId.isEmpty()){
@@ -82,13 +87,13 @@ public class Responder extends TelegramLongPollingBot {
 
         // First option
         InlineKeyboardButton option1 = new InlineKeyboardButton();
-        option1.setText("Option 1");
-        option1.setCallbackData("/option1");
+        option1.setText("Enter a task");
+        option1.setCallbackData("/enteringTask");
 
         // Second option
         InlineKeyboardButton option2 = new InlineKeyboardButton();
-        option2.setText("Option 2");
-        option2.setCallbackData("/option2");
+        option2.setText("Show all tasks");
+        option2.setCallbackData("/allTasks");
 
         // Adding options to the keyboard
         buttonsRow.add(option1);
