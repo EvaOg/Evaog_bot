@@ -4,78 +4,85 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Responder extends TelegramLongPollingBot {
 
-    /*
-    1. The program make every sek a GET require to Telegram  using
-        URL: https://api.telegram.org/BotToken/getMe
-    2. Program receives messages from users as JSON file (that first
-        is automatically edited by the library) and then come to the method onUpdateReceived method
-    */
+    AllTasks allTasks = new AllTasks();
+    String inputTask = "";
+    boolean greeting = true;
 
     @Override
     public void onUpdateReceived(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            String chatId = String.valueOf(update.getMessage().getChatId());
 
-        String response = "Sorry, I haven't understood your message. Please push any button from above";
-
-        String chatId ="";
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setText(response);
-
-        if(update.hasCallbackQuery() && update.getCallbackQuery().getData() != null && !update.getCallbackQuery().getData().isEmpty()){
-
-            chatId = String.valueOf(update.getCallbackQuery().getMessage().getChatId());
-
-            String callBackData = update.getCallbackQuery().getData();
-            if(callBackData.equalsIgnoreCase("/enteringTask")){
-                sendMessage.setText("Enter task & chose the time time");
+            if (inputTask.equals("task")) {
                 String newTask = update.getMessage().getText().trim();
-                new AllTasks(newTask);
-                //the next input is the task
-                // save task by calling a Constructor AllTasks(task, time)
-
-            }
-            if(callBackData.equalsIgnoreCase("/allTasks")){
-                AllTasks allTasks = new AllTasks();
-                sendMessage.setText(allTasks.toString());
+                allTasks.createAllTasks(newTask);
+                String str = allTasks.toString();
+                sendResponse(chatId, str);
+                inputTask = "";  // reset inputTask after handling
             }
 
-        }
-
-        if(update.hasMessage() && update.getMessage().hasText()) { //we check first of all that there is a message, not an empty str and it's a text
-
-            chatId = String.valueOf(update.getMessage().getChatId());
-            String userMessage = update.getMessage().getText().trim(); //trim remove any empty characters at the beginning & at the end of the string
-
-                sendMessage.setText("Moin!  I'm EvaBot \uD83D\uDE42  Please choose: ");
-
-                //Creating a keyboard
+            if (greeting) {
+                sendResponse(chatId, "Moin!  I'm EvaBot \uD83D\uDE42");
                 InlineKeyboardMarkup inlineKeyboardMarkup = getInlineKeyboardMarkup();
-
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
                 sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+                sendMessage.setText("Please choose an option:");
+                try {
+                    execute(sendMessage); // we tell telegram to send this message
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                greeting = false;
+            } else {
+                InlineKeyboardMarkup inlineKeyboardMarkup2 = getInlineKeyboardMarkup2();
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setReplyMarkup(inlineKeyboardMarkup2);
+                sendMessage.setText("Do you want to enter other tasks?");
+                try {
+                    execute(sendMessage); // we tell telegram to send this message
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            if (chatId.isEmpty()) {
+                throw new IllegalStateException("The chat id is not found");
+            }
         }
 
-        if(chatId.isEmpty()){
-            throw new IllegalStateException("The chat id is not found");
-        }
+        if (update.hasCallbackQuery() && update.getCallbackQuery().getData() != null && !update.getCallbackQuery().getData().isEmpty()) {
+            String chatId = String.valueOf(update.getCallbackQuery().getMessage().getChatId());
+            String callBackData = update.getCallbackQuery().getData();
 
+            if (callBackData.equalsIgnoreCase("/enteringTask")) {
+                sendResponse(chatId, "Enter task & choose the time");
+                inputTask = "task";
+            } else if (callBackData.equalsIgnoreCase("/allTasks")) {
+                sendResponse(chatId, allTasks.toString());
+            }
+        }
+    }
+
+    private void sendResponse(String chatId, String text) {
+        SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
 
         try {
-            sendApiMethod(sendMessage); // we tell telegram to send this message
+            execute(sendMessage);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -99,14 +106,51 @@ public class Responder extends TelegramLongPollingBot {
         buttonsRow.add(option1);
         buttonsRow.add(option2);
 
-        // setting this list with options to the keyboard
+        // Setting this list with options to the keyboard
         keyboard.add(buttonsRow);
 
-        //adding our keyboard to the chat
+        // Adding our keyboard to the chat
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
     }
+
+    private static InlineKeyboardMarkup getInlineKeyboardMarkup2() {
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        // Create a button's row
+        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+
+        // First option
+        InlineKeyboardButton option1 = new InlineKeyboardButton();
+        option1.setText("Yes");
+        option1.setCallbackData("/enteringTask");
+
+        // Second option
+        InlineKeyboardButton option2 = new InlineKeyboardButton();
+        option2.setText("No");
+        option2.setCallbackData("/sayBuy");
+
+        // Second option
+        InlineKeyboardButton option3 = new InlineKeyboardButton();
+        option3.setText("Show all tasks");
+        option3.setCallbackData("/allTasks");
+
+        // Adding options to the keyboard
+        buttonsRow.add(option1);
+        buttonsRow.add(option2);
+        buttonsRow.add(option3);
+
+        // Setting this list with options to the keyboard
+        keyboard.add(buttonsRow);
+
+        // Adding our keyboard to the chat
+        InlineKeyboardMarkup inlineKeyboardMarkup2 = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup2.setKeyboard(keyboard);
+        return inlineKeyboardMarkup2;
+    }
+
+
 
     @Override
     public String getBotUsername() {
