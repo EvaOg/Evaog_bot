@@ -4,11 +4,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class Responder extends TelegramLongPollingBot {
 
@@ -31,7 +29,7 @@ public class Responder extends TelegramLongPollingBot {
 
             if (greeting) {
                 sendResponse(chatId, "Moin!  I'm EvaBot \uD83D\uDE42");
-                InlineKeyboardMarkup inlineKeyboardMarkup = getInlineKeyboardMarkup();
+                InlineKeyboardMarkup inlineKeyboardMarkup = KeyboardMarkup.getInlineKeyboardMarkup();
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(chatId);
                 sendMessage.setReplyMarkup(inlineKeyboardMarkup);
@@ -43,7 +41,7 @@ public class Responder extends TelegramLongPollingBot {
                 }
                 greeting = false;
             } else {
-                InlineKeyboardMarkup inlineKeyboardMarkup2 = getInlineKeyboardMarkup2();
+                InlineKeyboardMarkup inlineKeyboardMarkup2 = KeyboardMarkup2.getInlineKeyboardMarkup();
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(chatId);
                 sendMessage.setReplyMarkup(inlineKeyboardMarkup2);
@@ -85,71 +83,6 @@ public class Responder extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-    private static InlineKeyboardMarkup getInlineKeyboardMarkup() {
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        // Create a button's row
-        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
-
-        // First option
-        InlineKeyboardButton option1 = new InlineKeyboardButton();
-        option1.setText("Enter a task");
-        option1.setCallbackData("/enteringTask");
-
-        // Second option
-        InlineKeyboardButton option2 = new InlineKeyboardButton();
-        option2.setText("Show all tasks");
-        option2.setCallbackData("/allTasks");
-
-        // Adding options to the keyboard
-        buttonsRow.add(option1);
-        buttonsRow.add(option2);
-
-        // Setting this list with options to the keyboard
-        keyboard.add(buttonsRow);
-
-        // Adding our keyboard to the chat
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(keyboard);
-        return inlineKeyboardMarkup;
-    }
-
-    private static InlineKeyboardMarkup getInlineKeyboardMarkup2() {
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        // Create a button's row
-        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
-
-        // First option
-        InlineKeyboardButton option1 = new InlineKeyboardButton();
-        option1.setText("Yes");
-        option1.setCallbackData("/enteringTask");
-
-        // Second option
-        InlineKeyboardButton option2 = new InlineKeyboardButton();
-        option2.setText("No");
-        option2.setCallbackData("/sayBuy");
-
-        // Second option
-        InlineKeyboardButton option3 = new InlineKeyboardButton();
-        option3.setText("Show all tasks");
-        option3.setCallbackData("/allTasks");
-
-        // Adding options to the keyboard
-        buttonsRow.add(option1);
-        buttonsRow.add(option2);
-        buttonsRow.add(option3);
-
-        // Setting this list with options to the keyboard
-        keyboard.add(buttonsRow);
-
-        // Adding our keyboard to the chat
-        InlineKeyboardMarkup inlineKeyboardMarkup2 = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup2.setKeyboard(keyboard);
-        return inlineKeyboardMarkup2;
-    }
-
 
 
     @Override
