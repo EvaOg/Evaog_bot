@@ -4,6 +4,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
@@ -13,20 +14,52 @@ public class Responder extends TelegramLongPollingBot {
     AllTasks allTasks = new AllTasks();
     String inputTask = "";
     boolean greeting = true;
-
+    String task = "";
+    int time = 0;
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String chatId = String.valueOf(update.getMessage().getChatId());
+            String userMessage = update.getMessage().getText().trim();
 
             if (inputTask.equals("task")) {
-                String newTask = update.getMessage().getText().trim();
-                allTasks.createAllTasks(newTask);
-                String str = allTasks.toString();
-                sendResponse(chatId, str);
-                inputTask = "";  // reset inputTask after handling
+                task = userMessage;
+                ReplyKeyboardMarkup replyKeyboardMarkup = TimeKeyboard.createTimeKeyboard();
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setReplyMarkup(replyKeyboardMarkup);
+                sendMessage.setText("Please choose a time for the reminder:");
+                try {
+                    execute(sendMessage); // we tell telegram to send this message
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                inputTask = "setTime";
+            } else if (inputTask.equals("setTime")) {
+                switch (userMessage) {
+                    case "in 1 hour":
+                        time = 1;
+                        break;
+                    case "in 2 hours":
+                        time = 2;
+                        break;
+                    case "in 5 hours":
+                        time = 5;
+                        break;
+                    case "cancel":
+                        inputTask = "otherTask";
+                        break;
+                    default:
+                        sendResponse(chatId, "Invalid option. Please choose a valid time:");
+                        inputTask = "otherTask";
+                        break;
+                }
+                allTasks.createAllTasks(task + " - Reminder set for " + time + " hour(s)");
+                sendResponse(chatId, "Task: " + task + " added with a reminder set for " + time + " hour(s).");
+                inputTask = ""; // reset inputTask after handling
+                task = "";
+                inputTask = "otherTask";
             }
-
             if (greeting) {
                 sendResponse(chatId, "Moin!  I'm EvaBot \uD83D\uDE42");
                 InlineKeyboardMarkup inlineKeyboardMarkup = KeyboardMarkup.getInlineKeyboardMarkup();
@@ -40,7 +73,9 @@ public class Responder extends TelegramLongPollingBot {
                     throw new RuntimeException(e);
                 }
                 greeting = false;
-            } else {
+
+            }
+            if (inputTask.equals("otherTask")){
                 InlineKeyboardMarkup inlineKeyboardMarkup2 = KeyboardMarkup2.getInlineKeyboardMarkup();
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(chatId);
@@ -51,7 +86,6 @@ public class Responder extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
-
             }
 
             if (chatId.isEmpty()) {
@@ -64,11 +98,17 @@ public class Responder extends TelegramLongPollingBot {
             String callBackData = update.getCallbackQuery().getData();
 
             if (callBackData.equalsIgnoreCase("/enteringTask")) {
-                sendResponse(chatId, "Enter task & choose the time");
+                sendResponse(chatId, "Enter a task & choose the time");
                 inputTask = "task";
-            } else if (callBackData.equalsIgnoreCase("/allTasks")) {
+            }
+            if (callBackData.equalsIgnoreCase("/allTasks")) {
                 sendResponse(chatId, allTasks.toString());
             }
+            if (callBackData.equalsIgnoreCase("/sayBye")) {
+                sendResponse(chatId, "Ok, see you later \uD83D\uDC4B");
+                greeting = true;
+            }
+
         }
     }
 
@@ -83,6 +123,8 @@ public class Responder extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
+
 
 
     @Override

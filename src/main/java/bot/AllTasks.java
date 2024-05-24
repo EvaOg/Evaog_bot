@@ -11,11 +11,9 @@ public class AllTasks {
 
 
     public void createAllTasks(String task) {
-        Task newTask = new Task(task, 15);
+        Task newTask = new Task(task);
         tasks.add(newTask);
     }
-
-
 
 
     @Override

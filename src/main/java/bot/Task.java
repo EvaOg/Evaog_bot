@@ -4,9 +4,14 @@ public class Task {
     private String task;
     private int time;
 
-    public Task(String message, int userTime) {
+
+
+    public Task(String message) {
         this.task = message;
-        calculateTime(userTime);
+    }
+
+    public Task(int userTime) {
+       this.time = userTime;
     }
 
     public String getTask() {
