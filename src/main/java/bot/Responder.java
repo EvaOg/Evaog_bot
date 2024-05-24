@@ -7,6 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Responder extends TelegramLongPollingBot {
@@ -16,6 +19,7 @@ public class Responder extends TelegramLongPollingBot {
     boolean greeting = true;
     String task = "";
     int time = 0;
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1); //java utils, controls the time of exec of a task
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -49,6 +53,7 @@ public class Responder extends TelegramLongPollingBot {
                 }
 
                 allTasks.createAllTasks(new Task(task, time));// creating object Task with 2 param & adding it to array
+                reminder(task, chatId, time);
 
                 sendResponse(chatId, "I'll remind you about the task: " + task + " " + userMessage);
                 task = "";
@@ -62,7 +67,7 @@ public class Responder extends TelegramLongPollingBot {
                 greeting = false;
 
             }
-            if (nextCommand.equals("otherTask")){
+            if (nextCommand.equals("otherTask")) {
                 InlineKeyboardMarkup inlineKeyboardMarkup2 = KeyboardMarkup2.getInlineKeyboardMarkup();
                 sendResponseWithKeyboard(chatId, "Do you want to enter other tasks?", inlineKeyboardMarkup2);
             }
@@ -131,7 +136,20 @@ public class Responder extends TelegramLongPollingBot {
         }
     }
 
+    //create method for executor
+    private void reminder(String textToRemind, String chatId, int time) {
+        long delay = TimeUnit.SECONDS.toMillis(time);
 
+        executor.schedule(() -> {
+            sendResponse(chatId, textToRemind);
+            System.out.println("reminded");
+            for (int i = 0; i < allTasks.tasks.size(); i++) {
+                if (allTasks.tasks.get(i).getTask().equals(textToRemind)) {
+                    allTasks.removeTask(allTasks.tasks.get(i));
+                }
+            }
+        }, delay, TimeUnit.MILLISECONDS);
+    }
 
     @Override
     public String getBotUsername() {
