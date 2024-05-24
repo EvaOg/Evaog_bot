@@ -21,7 +21,7 @@ public class AllTasks {
         StringBuilder tasksString = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
-            tasksString.append(i + 1).append(". ").append(task.toString()).append("\n");
+            tasksString.append("\uD83D\uDCDD").append(i + 1).append(". ").append(task.toString()).append("\n");
         }
         return tasksString.toString();
     }

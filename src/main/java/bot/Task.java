@@ -20,7 +20,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task: " + task + ", Time: " + time + " hour(s)";
+        return "Task: " + task;
     }
    /* public void calculateTime(int time) {
         long time = currentDate.getTime() + (time*3600000);

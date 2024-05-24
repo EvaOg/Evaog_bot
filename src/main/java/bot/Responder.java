@@ -44,12 +44,13 @@ public class Responder extends TelegramLongPollingBot {
                         time = 5;
                         break;
                     case "cancel":
+                        sendResponse(chatId, "This task is cancelled");
                         nextCommand = "otherTask";
-                        break;
+                        return;
                     default:
                         sendResponse(chatId, "Invalid option. Try again.");
                         nextCommand = "otherTask";
-                        break;
+                        return;
                 }
 
                 allTasks.createAllTasks(new Task(task, time));// creating object Task with 2 param & adding it to array
@@ -87,7 +88,11 @@ public class Responder extends TelegramLongPollingBot {
                 nextCommand = "task";
             }
             if (callBackData.equalsIgnoreCase("/allTasks")) {
-                sendResponse(chatId, allTasks.toString());
+                if(!allTasks.tasks.isEmpty()) {
+                    sendResponse(chatId, allTasks.toString());
+                } else{
+                    sendResponse(chatId, "There are no tasks");
+                }
             }
             if (callBackData.equalsIgnoreCase("/sayBye")) {
                 sendResponse(chatId, "Ok, see you later \uD83D\uDC4B");
@@ -139,9 +144,9 @@ public class Responder extends TelegramLongPollingBot {
     //create method for executor
     private void reminder(String textToRemind, String chatId, int time) {
         long delay = TimeUnit.SECONDS.toMillis(time);
-
+String message = "‼\uFE0F Don't forget about your task: " + textToRemind;
         executor.schedule(() -> {
-            sendResponse(chatId, textToRemind);
+            sendResponse(chatId, message);
             System.out.println("reminded");
             for (int i = 0; i < allTasks.tasks.size(); i++) {
                 if (allTasks.tasks.get(i).getTask().equals(textToRemind)) {
