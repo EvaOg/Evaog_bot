@@ -25,15 +25,7 @@ public class Responder extends TelegramLongPollingBot {
             if (inputTask.equals("task")) {
                 task = userMessage;
                 ReplyKeyboardMarkup replyKeyboardMarkup = TimeKeyboard.createTimeKeyboard();
-                SendMessage sendMessage = new SendMessage();
-                sendMessage.setChatId(chatId);
-                sendMessage.setReplyMarkup(replyKeyboardMarkup);
-                sendMessage.setText("Please choose a time for the reminder:");
-                try {
-                    execute(sendMessage); // we tell telegram to send this message
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
+                sendResponseWithKeyboard(chatId, "Please choose a time for the reminder:", replyKeyboardMarkup);
                 inputTask = "setTime";
             } else if (inputTask.equals("setTime")) {
                 switch (userMessage) {
@@ -63,29 +55,13 @@ public class Responder extends TelegramLongPollingBot {
             if (greeting) {
                 sendResponse(chatId, "Moin!  I'm EvaBot \uD83D\uDE42");
                 InlineKeyboardMarkup inlineKeyboardMarkup = KeyboardMarkup.getInlineKeyboardMarkup();
-                SendMessage sendMessage = new SendMessage();
-                sendMessage.setChatId(chatId);
-                sendMessage.setReplyMarkup(inlineKeyboardMarkup);
-                sendMessage.setText("Please choose an option:");
-                try {
-                    execute(sendMessage); // we tell telegram to send this message
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
+                sendResponseWithKeyboard(chatId, "Please choose an option:", inlineKeyboardMarkup);
                 greeting = false;
 
             }
             if (inputTask.equals("otherTask")){
                 InlineKeyboardMarkup inlineKeyboardMarkup2 = KeyboardMarkup2.getInlineKeyboardMarkup();
-                SendMessage sendMessage = new SendMessage();
-                sendMessage.setChatId(chatId);
-                sendMessage.setReplyMarkup(inlineKeyboardMarkup2);
-                sendMessage.setText("Do you want to enter other tasks?");
-                try {
-                    execute(sendMessage); // we tell telegram to send this message
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
+                sendResponseWithKeyboard(chatId, "Do you want to enter other tasks?", inlineKeyboardMarkup2);
             }
 
             if (chatId.isEmpty()) {
@@ -98,7 +74,7 @@ public class Responder extends TelegramLongPollingBot {
             String callBackData = update.getCallbackQuery().getData();
 
             if (callBackData.equalsIgnoreCase("/enteringTask")) {
-                sendResponse(chatId, "Enter a task & choose the time");
+                sendResponse(chatId, "Enter a task");
                 inputTask = "task";
             }
             if (callBackData.equalsIgnoreCase("/allTasks")) {
@@ -124,6 +100,32 @@ public class Responder extends TelegramLongPollingBot {
         }
     }
 
+
+    private void sendResponseWithKeyboard(String chatId, String text, InlineKeyboardMarkup keyboard) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+        sendMessage.setReplyMarkup(keyboard);
+
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendResponseWithKeyboard(String chatId, String text, ReplyKeyboardMarkup keyboard) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+        sendMessage.setReplyMarkup(keyboard);
+
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
