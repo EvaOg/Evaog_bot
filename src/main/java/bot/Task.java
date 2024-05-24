@@ -5,25 +5,17 @@ public class Task {
     private int time;
 
 
-
-    public Task(String message) {
+    public Task(String message, int userTime) {
         this.task = message;
+        this.time = userTime;
     }
 
-    public Task(int userTime) {
-       this.time = userTime;
+    @Override
+    public String toString() {
+        return "Task: " + task + ", Time: " + time + " hour(s)";
     }
-
-    public String getTask() {
-        return task;
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public void calculateTime(int time) {
+   /* public void calculateTime(int time) {
         this.time = getTime() + time;
-    }
+    }*/
 
 }

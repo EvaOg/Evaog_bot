@@ -6,22 +6,18 @@ import java.util.List;
 public class AllTasks {
     List<Task> tasks = new ArrayList<Task>();
 
-    public AllTasks() {
-    }
 
-
-    public void createAllTasks(String task) {
-        Task newTask = new Task(task);
-        tasks.add(newTask);
+    public void createAllTasks(Task task) {
+        tasks.add(task);
     }
 
 
     @Override
     public String toString() {
-
         StringBuilder tasksString = new StringBuilder();
-        for (Task task : tasks) {
-            tasksString.append(task.toString());
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            tasksString.append(i + 1).append(". ").append(task.toString()).append("\n");
         }
         return tasksString.toString();
     }
