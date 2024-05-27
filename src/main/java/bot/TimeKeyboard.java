@@ -1,6 +1,6 @@
 package bot;
 
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -9,8 +9,7 @@ import java.util.List;
 
 public class TimeKeyboard {
     public static ReplyKeyboardMarkup createTimeKeyboard() {
-       // replyKeyboardMarkup.setResizeKeyboard(true);
-         // Keep the keyboard visible
+
         List<KeyboardRow> timeKeyboard = new ArrayList<>();
 
         // First option
@@ -35,7 +34,6 @@ public class TimeKeyboard {
         timeKeyboard.add(keyboardSecondRow);
         timeKeyboard.add(keyboardThirdRow);
         timeKeyboard.add(keyboardForthRow);
-
 
 
         // Adding our keyboard to the chat
