@@ -1,4 +1,4 @@
-package bot;
+package bot.utils;
 
 /*import com.fasterxml.jackson.core.JsonParser;
 import org.json.simple.parser.JSONParser;

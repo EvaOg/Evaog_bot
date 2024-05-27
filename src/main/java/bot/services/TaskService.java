@@ -1,7 +1,9 @@
-package bot;
+package bot.services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import bot.model.Task;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -10,7 +12,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllTasks {
+public class TaskService {
+
     List<Task> tasks = new ArrayList<>();
 
     public void createAllTasks(Task task) {
@@ -23,6 +26,36 @@ public class AllTasks {
         saveTasksToFile();
     }
 
+    private void saveTasksToFile() {
+        try (FileWriter writer = new FileWriter("tasks.json")) {
+            Gson gson = new Gson();
+            gson.toJson(tasks, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadTasksFromFile() {
+        // TODO: load from ressources folder
+
+        try (FileReader reader = new FileReader("tasks.json")) {
+            Gson gson = new Gson();
+            Type taskListType = new TypeToken<ArrayList<Task>>() {
+            }.getType();
+            tasks = gson.fromJson(reader, taskListType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
     @Override
     public String toString() {
         StringBuilder tasksString = new StringBuilder();
@@ -33,22 +66,4 @@ public class AllTasks {
         return tasksString.toString();
     }
 
-    public void saveTasksToFile() {
-        try (FileWriter writer = new FileWriter("tasks.json")) {
-            Gson gson = new Gson();
-            gson.toJson(tasks, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void loadTasksFromFile() {
-        try (FileReader reader = new FileReader("tasks.json")) {
-            Gson gson = new Gson();
-            Type taskListType = new TypeToken<ArrayList<Task>>() {}.getType();
-            tasks = gson.fromJson(reader, taskListType);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

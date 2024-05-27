@@ -7,23 +7,35 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import bot.model.Task;
+import bot.services.TaskService;
+import bot.utils.KeyboardMarkup;
+import bot.utils.KeyboardMarkup2;
+import bot.utils.TimeKeyboard;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 public class Responder extends TelegramLongPollingBot {
 
+    private static final String BOT_TOKEN = "6303296358:AAHP4NyVIY9czWhy8B99hsMIiRQMe2JVUz0";
+    private static final String USERNAME = "evaog_bot";
 
-    AllTasks allTasks = new AllTasks();
-    String nextCommand = "";
+    final TaskService taskService = new TaskService();
+
     boolean greeting = true;
+    
+    String nextCommand = "";
     String task = "";
+    
     int time = 0;
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1); //java utils, controls the time of exec of a task
+
+    // java utils, controls the time of exec of a task
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
     public Responder() {
-        allTasks.loadTasksFromFile();
+        taskService.loadTasksFromFile();
     }
 
     @Override
@@ -58,7 +70,8 @@ public class Responder extends TelegramLongPollingBot {
                         return;
                 }
 
-                allTasks.createAllTasks(new Task(task, time));// creating object Task with 2 param & adding it to array
+                taskService.createAllTasks(new Task(task, time));// creating object Task with 2 param & adding it to
+                                                                 // array
                 reminder(task, chatId, time);
 
                 sendResponse(chatId, "I'll remind you about the task: " + task + " " + userMessage);
@@ -78,13 +91,13 @@ public class Responder extends TelegramLongPollingBot {
                 sendResponseWithKeyboard(chatId, "Do you want to enter other tasks?", inlineKeyboardMarkup2);
             }
 
-
             if (chatId.isEmpty()) {
                 throw new IllegalStateException("The chat id is not found");
             }
         }
 
-        if (update.hasCallbackQuery() && update.getCallbackQuery().getData() != null && !update.getCallbackQuery().getData().isEmpty()) {
+        if (update.hasCallbackQuery() && update.getCallbackQuery().getData() != null
+                && !update.getCallbackQuery().getData().isEmpty()) {
             String chatId = String.valueOf(update.getCallbackQuery().getMessage().getChatId());
             String callBackData = update.getCallbackQuery().getData();
 
@@ -93,9 +106,9 @@ public class Responder extends TelegramLongPollingBot {
                 nextCommand = "task";
             }
             if (callBackData.equalsIgnoreCase("/allTasks")) {
-                if(!allTasks.tasks.isEmpty()) {
-                    sendResponse(chatId, allTasks.toString());
-                } else{
+                if (!taskService.getTasks().isEmpty()) {
+                    sendResponse(chatId, taskService.toString());
+                } else {
                     sendResponse(chatId, "There are no tasks");
                 }
             }
@@ -118,7 +131,6 @@ public class Responder extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
 
     private void sendResponseWithKeyboard(String chatId, String text, InlineKeyboardMarkup keyboard) {
         SendMessage sendMessage = new SendMessage();
@@ -146,16 +158,17 @@ public class Responder extends TelegramLongPollingBot {
         }
     }
 
-    //create method for executor
+    // create method for executor
     private void reminder(String textToRemind, String chatId, int time) {
         long delay = TimeUnit.SECONDS.toMillis(time);
-String message = "‼\uFE0F Don't forget about your task: " + textToRemind;
+        String message = "‼\uFE0F Don't forget about your task: " + textToRemind;
         executor.schedule(() -> {
             sendResponse(chatId, message);
             System.out.println("reminded");
-            for (int i = 0; i < allTasks.tasks.size(); i++) {
-                if (allTasks.tasks.get(i).getTask().equals(textToRemind)) {
-                    allTasks.removeTask(allTasks.tasks.get(i));
+
+            for (Task currentTask : taskService.getTasks()) {
+                if (currentTask.getTask().equals(textToRemind)) {
+                    taskService.removeTask(currentTask);
                 }
             }
         }, delay, TimeUnit.MILLISECONDS); // use seconds for test!! Then change to mins
@@ -163,11 +176,11 @@ String message = "‼\uFE0F Don't forget about your task: " + textToRemind;
 
     @Override
     public String getBotUsername() {
-        return Bot.USERNAME;
+        return USERNAME;
     }
 
     @Override
     public String getBotToken() {
-        return Bot.BOT_TOKEN;
+        return BOT_TOKEN;
     }
 }
