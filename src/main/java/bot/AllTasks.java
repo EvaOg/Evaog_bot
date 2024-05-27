@@ -1,5 +1,6 @@
 package bot;
 
+import bot.model.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AllTasks {
-    List<Task> tasks = new ArrayList<>();
+    public List<Task> tasks = new ArrayList<>();
 
     public void createAllTasks(Task task) {
         tasks.add(task);
