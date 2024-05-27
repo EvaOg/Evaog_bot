@@ -22,9 +22,5 @@ public class Task {
     public String toString() {
         return "Task: " + task;
     }
-   /* public void calculateTime(int time) {
-        long time = currentDate.getTime() + (time*3600000);
-        this.time = getTime() + time;
-    }*/
 
 }

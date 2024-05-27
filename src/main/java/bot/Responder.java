@@ -14,12 +14,17 @@ import java.util.concurrent.TimeUnit;
 
 public class Responder extends TelegramLongPollingBot {
 
+
     AllTasks allTasks = new AllTasks();
     String nextCommand = "";
     boolean greeting = true;
     String task = "";
     int time = 0;
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1); //java utils, controls the time of exec of a task
+
+    public Responder() {
+        allTasks.loadTasksFromFile();
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -153,7 +158,7 @@ String message = "‼\uFE0F Don't forget about your task: " + textToRemind;
                     allTasks.removeTask(allTasks.tasks.get(i));
                 }
             }
-        }, delay, TimeUnit.MILLISECONDS);
+        }, delay, TimeUnit.MILLISECONDS); // use seconds for test!! Then change to mins
     }
 
     @Override
